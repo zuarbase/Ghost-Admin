@@ -38,6 +38,7 @@ export default Component.extend(SettingsMenuMixin, {
     twitterDescriptionScratch: alias('post.twitterDescriptionScratch'),
     twitterTitleScratch: alias('post.twitterTitleScratch'),
     slugValue: boundOneWay('post.slug'),
+    sortOrder: alias('post.sortOrder'),
 
     facebookDescription: or('ogDescriptionScratch', 'customExcerptScratch', 'seoDescription'),
     facebookImage: or('post.ogImage', 'post.featureImage'),
@@ -214,6 +215,21 @@ export default Component.extend(SettingsMenuMixin, {
             post.set('customExcerpt', excerpt);
 
             return post.validate({property: 'customExcerpt'}).then(() => this.savePost.perform());
+        },
+
+        setSortOrder(sortOrder) {
+            let post = this.post;
+            let currentSortOrder = post.get('sortOrder');
+
+            sortOrder = Number.parseInt(sortOrder, 10);
+
+            if (sortOrder === currentSortOrder) {
+                return;
+            }
+
+            post.set('sortOrder', sortOrder);
+
+            return post.validate({property: 'sortOrder'}).then(() => this.savePost.perform());
         },
 
         setHeaderInjection(code) {

@@ -30,6 +30,9 @@ const ORDERS = [{
 }, {
     name: 'Recently updated',
     value: 'updated_at desc'
+}, {
+    name: 'Custom Sort Order',
+    value: 'sort_order asc'
 }];
 
 export default Controller.extend({

@@ -100,6 +100,20 @@
                     {{gh-error-message errors=post.errors property="customExcerpt" data-test-error="custom-excerpt"}}
                 {{/gh-form-group}}
 
+                {{#gh-form-group errors=post.errors hasValidated=post.hasValidated property="sort_order"}}
+                    <label for="sort_order">Sort Order</label>
+                    {{gh-text-input
+                        class="post-setting-sort_order"
+                        id="sort_order"
+                        name="post-setting-sort_order"
+                        value=(readonly sortOrder)
+                        input=(action (mut sortOrder) value="target.value")
+                        focus-out=(action "setSortOrder" sortOrder)
+                        stopEnterKeyDownPropagation="true"
+                        data-test-field="sort_order"}}
+                    {{gh-error-message errors=post.errors property="sort_order" data-test-error="sort_order"}}
+                {{/gh-form-group}}
+
                 {{#unless session.user.isAuthorOrContributor}}
                     {{#gh-form-group class="for-select" errors=post.errors hasValidated=post.hasValidated property="authors" data-test-input="authors"}}
                         <label for="author-list">Authors</label>
