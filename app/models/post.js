@@ -99,6 +99,7 @@ export default Model.extend(Comparable, ValidationEngine, {
     plaintext: attr('string'),
     publishedAtUTC: attr('moment-utc'),
     slug: attr('string'),
+    sortOrder: attr('number'),
     status: attr('string', {defaultValue: 'draft'}),
     title: attr('string', {defaultValue: ''}),
     updatedAtUTC: attr('moment-utc'),

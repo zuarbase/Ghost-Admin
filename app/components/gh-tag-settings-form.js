@@ -4,7 +4,7 @@ import Ember from 'ember';
 import boundOneWay from 'ghost-admin/utils/bound-one-way';
 import {computed} from '@ember/object';
 import {htmlSafe} from '@ember/string';
-import {reads} from '@ember/object/computed';
+import {alias, reads} from '@ember/object/computed';
 import {inject as service} from '@ember/service';
 
 const {Handlebars} = Ember;
@@ -27,6 +27,7 @@ export default Component.extend({
     scratchDescription: boundOneWay('tag.description'),
     scratchMetaTitle: boundOneWay('tag.metaTitle'),
     scratchMetaDescription: boundOneWay('tag.metaDescription'),
+    order: alias('tag.order'),
 
     isMobile: reads('mediaQueries.maxWidth600'),
 
@@ -86,6 +87,19 @@ export default Component.extend({
         return metaDescription;
     }),
 
+    setSortOrder(sortOrder) {
+        let tag = this.tag;
+        let currentSortOrder = tag.get('sortOrder');
+
+        sortOrder = Number.parseInt(sortOrder, 10);
+
+        if (sortOrder === currentSortOrder) {
+            return;
+        }
+
+        this.setProperty('sortOrder', value);
+    },
+
     didReceiveAttrs() {
         this._super(...arguments);
 
@@ -102,6 +116,10 @@ export default Component.extend({
     actions: {
         setProperty(property, value) {
             this.setProperty(property, value);
+        },
+
+        setSortOrder (value) {
+            this.setSortOrder(value);
         },
 
         setCoverImage(image) {
