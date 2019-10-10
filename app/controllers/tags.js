@@ -17,6 +17,7 @@ export default Controller.extend({
         });
     }),
 
+    // TODO 
     // tags are sorted by name
     sortedTags: sort('filteredTags', function (tagA, tagB) {
         // ignorePunctuation means the # in internal tag names is ignored
