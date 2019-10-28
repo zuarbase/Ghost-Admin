@@ -10,7 +10,6 @@ export default Component.extend({
     mediaQueries: service(),
 
     isViewingSubview: false,
-    scratchDescription: '',
 
     // Allowed actions
     setProperty: () => {},
@@ -18,18 +17,30 @@ export default Component.extend({
 
     scratchName: boundOneWay('member.name'),
     scratchEmail: boundOneWay('member.email'),
-    subscription: computed('member.stripe', function () {
+    scratchNote: boundOneWay('member.note'),
+    subscriptions: computed('member.stripe', function () {
         let subscriptions = this.member.get('stripe');
         if (subscriptions && subscriptions.length > 0) {
-            let latestSubscription = subscriptions[0];
-            return {
-                customer: latestSubscription.customer,
-                name: latestSubscription.name,
-                status: latestSubscription.status,
-                validUntil: moment(latestSubscription.validUntil * 1000).format('MMM DD YYYY')
-            };
+            return subscriptions.map((subscription) => {
+                return {
+                    customer: subscription.customer,
+                    name: subscription.name || '',
+                    email: subscription.email || '',
+                    status: subscription.status,
+                    startDate: subscription.start_date ? moment(subscription.start_date).format('MMM DD YYYY') : '-',
+                    plan: subscription.plan,
+                    validUntil: subscription.current_period_end ? moment(subscription.current_period_end).format('MMM DD YYYY') : '-'
+                };
+            }).reverse();
         }
         return null;
+    }),
+    hasMultipleSubscriptions: computed('member.stripe', function () {
+        let subscriptions = this.member.get('stripe');
+        if (subscriptions && subscriptions.length > 1) {
+            return true;
+        }
+        return false;
     }),
 
     actions: {

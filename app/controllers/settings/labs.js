@@ -3,13 +3,11 @@ import $ from 'jquery';
 import Controller from '@ember/controller';
 import RSVP from 'rsvp';
 import config from 'ghost-admin/config/environment';
-import isNumber from 'ghost-admin/utils/isNumber';
 import {
     UnsupportedMediaTypeError,
     isRequestEntityTooLargeError,
     isUnsupportedMediaTypeError
 } from 'ghost-admin/services/ajax';
-import {computed} from '@ember/object';
 import {isBlank} from '@ember/utils';
 import {isArray as isEmberArray} from '@ember/array';
 import {run} from '@ember/runloop';
@@ -63,23 +61,6 @@ export default Controller.extend({
         this.yamlExtension = YAML_EXTENSION;
         this.yamlMimeType = YAML_MIME_TYPE;
     },
-
-    subscriptionSettings: computed('settings.membersSubscriptionSettings', function () {
-        let subscriptionSettings = this.parseSubscriptionSettings(this.get('settings.membersSubscriptionSettings'));
-        let stripeProcessor = subscriptionSettings.paymentProcessors.find((proc) => {
-            return (proc.adapter === 'stripe');
-        });
-        let monthlyPlan = stripeProcessor.config.plans.find(plan => plan.interval === 'month');
-        let yearlyPlan = stripeProcessor.config.plans.find(plan => plan.interval === 'year');
-        monthlyPlan.dollarAmount = isNumber(monthlyPlan.amount) ? (monthlyPlan.amount / 100) : '';
-        yearlyPlan.dollarAmount = isNumber(yearlyPlan.amount) ? (yearlyPlan.amount / 100) : '';
-        stripeProcessor.config.plans = {
-            monthly: monthlyPlan,
-            yearly: yearlyPlan
-        };
-        subscriptionSettings.stripeConfig = stripeProcessor.config;
-        return subscriptionSettings;
-    }),
 
     actions: {
         onUpload(file) {
@@ -180,65 +161,8 @@ export default Controller.extend({
             this.set('settings.defaultContentVisibility', value);
         },
 
-        setSubscriptionSettings(key, event) {
-            let subscriptionSettings = this.parseSubscriptionSettings(this.get('settings.membersSubscriptionSettings'));
-            let stripeProcessor = subscriptionSettings.paymentProcessors.find((proc) => {
-                return (proc.adapter === 'stripe');
-            });
-            let stripeConfig = stripeProcessor.config;
-            stripeConfig.product = {
-                name: this.settings.get('title')
-            };
-            // TODO: this flag has to be removed as it doesn't serve any purpose
-            if (key === 'isPaid') {
-                subscriptionSettings.isPaid = event;
-            }
-            if (key === 'secret_token' || key === 'public_token') {
-                stripeConfig[key] = event.target.value;
-            }
-            if (key === 'month' || key === 'year') {
-                stripeConfig.plans = stripeConfig.plans.map((plan) => {
-                    if (key === plan.interval) {
-                        plan.amount = isNumber(event.target.value) ? event.target.value * 100 : '';
-                    }
-                    return plan;
-                });
-            }
+        setMembersSubscriptionSettings(subscriptionSettings) {
             this.set('settings.membersSubscriptionSettings', JSON.stringify(subscriptionSettings));
-        }
-    },
-
-    parseSubscriptionSettings(settingsString) {
-        try {
-            return JSON.parse(settingsString);
-        } catch (e) {
-            return {
-                isPaid: false,
-                paymentProcessors: [{
-                    adapter: 'stripe',
-                    config: {
-                        secret_token: '',
-                        public_token: '',
-                        product: {
-                            name: this.settings.get('title')
-                        },
-                        plans: [
-                            {
-                                name: 'Monthly',
-                                currency: 'usd',
-                                interval: 'month',
-                                amount: ''
-                            },
-                            {
-                                name: 'Yearly',
-                                currency: 'usd',
-                                interval: 'year',
-                                amount: ''
-                            }
-                        ]
-                    }
-                }]
-            };
         }
     },
 

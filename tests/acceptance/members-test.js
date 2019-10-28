@@ -29,13 +29,13 @@ describe('Acceptance: Members', function () {
             .to.not.exist;
     });
 
-    describe('as admin', function () {
+    describe('as owner', function () {
         beforeEach(async function () {
             this.server.loadFixtures('configs');
             let config = this.server.schema.configs.first();
             config.update({enableDeveloperExperiments: true});
 
-            let role = this.server.create('role', {name: 'Administrator'});
+            let role = this.server.create('role', {name: 'Owner'});
             this.server.create('user', {roles: [role]});
 
             return await authenticateSession();
@@ -63,7 +63,7 @@ describe('Acceptance: Members', function () {
             await click('[data-test-nav="members"]');
 
             expect(currentURL()).to.equal('/members');
-            expect(currentRouteName()).to.equal('members');
+            expect(currentRouteName()).to.equal('members.index');
             expect(find('[data-test-screen-title]')).to.have.text('Members');
         });
     });
